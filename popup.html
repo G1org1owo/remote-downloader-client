@@ -1,5 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="popup.css">
+</head>
 <body>
-  <h2>Remote Downloads</h2>
+  <h2>Remote Downloader</h2>
+  <label>Server WS URL:
+    <input type="text" id="wsUrl" placeholder="wss://server.example/ws" style="width:100%;">
+  </label>
+  <button id="saveBtn">Save</button>
+  <hr>
+  <h3>Downloads</h3>
   <ul id="list"></ul>
   <script src="popup.js"></script>
 </body>
+</html>
