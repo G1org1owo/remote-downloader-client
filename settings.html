@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Settings</title>
+  <style>
+    /* Reset */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #3730a3;
+      --bg: #f9fafb;
+      --text: #1f2937;
+      --border: #e5e7eb;
+      --input-bg: #fff;
+      --input-border: #cbd5e1;
+      --input-focus-border: var(--primary);
+      --button-radius: 8px;
+    }
+
+    body, html {
+      height: 100%;
+      background-color: var(--bg);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .settings-container {
+      background: white;
+      padding: 2rem 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      max-width: 420px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.8rem;
+      user-select: none;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      user-select: none;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border: 2px solid var(--input-border);
+      border-radius: var(--button-radius);
+      background-color: var(--input-bg);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--input-focus-border);
+      box-shadow: 0 0 8px rgba(79, 70, 229, 0.5);
+    }
+
+    button#saveBtn {
+      background-color: var(--primary);
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 0.75rem 0;
+      border-radius: var(--button-radius);
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease, transform 0.15s ease;
+      width: 100%;
+    }
+
+    button#saveBtn:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.05);
+    }
+
+    button#saveBtn:active {
+      transform: scale(0.95);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .settings-container {
+        padding: 1.5rem 1.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container" role="main">
+    <h2>Settings</h2>
+    <label for="wsUrl">WebSocket URL</label>
+    <input id="wsUrl" type="text" placeholder="ws://example.com:8080" autocomplete="off" />
+    <button id="saveBtn" type="button" aria-label="Save Settings">Save</button>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

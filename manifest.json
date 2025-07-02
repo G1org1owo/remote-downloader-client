@@ -1,6 +1,6 @@
 {
   "name": "Remote Downloader",
-  "version": "1.0",
+  "version": "1.2",
   "manifest_version": 3,
   "minimum_chrome_version": "116",
   "permissions": ["downloads", "storage"],
@@ -8,6 +8,7 @@
   "background": {
     "service_worker": "background.js"
   },
+  "options_page": "settings.html",
   "action": {
     "default_popup": "popup.html"
   }

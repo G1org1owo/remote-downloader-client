@@ -1,14 +1,22 @@
-const urlInput = document.getElementById('wsUrl');
-const saveBtn = document.getElementById('saveBtn');
-const listEl = document.getElementById('list');
+const settingsBtn = document.getElementById('settingsBtn');
+const tbody = document.querySelector('#downloads tbody');
+
+settingsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
 
 // Render list items
 function render(list = []) {
-  listEl.innerHTML = '';
+  tbody.innerHTML = '';
   list.forEach(d => {
-    const li = document.createElement('li');
-    li.textContent = `${d.url} → ${d.status} (${d.progress || 0}%)`;
-    listEl.appendChild(li);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${d.url.split('/').pop()}</td>
+      <td>${d.status}</td>
+      <td>
+        <div class="progress-container">
+          <div class="progress-bar" style="width:${d.progress || 0}%;"></div>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
   });
 }
 
@@ -22,18 +30,7 @@ function initPort() {
   });
 }
 
-// Initial load of saved values
 chrome.storage.local.get(['wsUrl', 'downloads'], res => {
-  if (res.wsUrl) urlInput.value = res.wsUrl;
   if (res.downloads) render(res.downloads);
   initPort();
-});
-
-// Save button behavior
-saveBtn.addEventListener('click', () => {
-  const url = urlInput.value.trim();
-  chrome.storage.local.set({ wsUrl: url }, () => {
-    chrome.runtime.sendMessage({ type: 'reconnect' });
-    alert('Server address saved!');
-  });
 });
