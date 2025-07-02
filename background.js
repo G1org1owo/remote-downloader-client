@@ -38,14 +38,16 @@ async function connect() {
 }
 
 chrome.downloads.onCreated.addListener(item => {
-  if (item.url) {
-    chrome.downloads.cancel(item.id);
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'download', url: item.url }));
-    } else {
-      console.error('WS not ready');
+  chrome.storage.local.get('interceptionEnabled', res => {
+    if (res.interceptionEnabled && item.url) {
+      chrome.downloads.cancel(item.id);
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'download', url: item.url }));
+      } else {
+        console.error('WS not ready');
+      }
     }
-  }
+  })
 });
 
 chrome.runtime.onConnect.addListener(port => {
@@ -65,6 +67,11 @@ chrome.runtime.onMessage.addListener(msg => {
   if (msg.type === 'reconnect') {
     ws?.close();
     connect();
+  }
+  else if (msg.type === 'toggleEnabled') {
+    let interceptionEnabled = msg.enabled;
+    chrome.storage.local.set({ interceptionEnabled })
+    console.log(`Remote download interception is now ${interceptionEnabled ? 'enabled' : 'disabled'}`);
   }
 });
 

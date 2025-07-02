@@ -1,5 +1,6 @@
 const settingsBtn = document.getElementById('settingsBtn');
 const tbody = document.querySelector('#downloads tbody');
+const enableToggle = document.getElementById('enableToggle');
 
 settingsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
 
@@ -30,7 +31,17 @@ function initPort() {
   });
 }
 
-chrome.storage.local.get(['wsUrl', 'downloads'], res => {
+// Load stored toggle state and update UI
+chrome.storage.local.get(['downloads', 'enabled'], res => {
   if (res.downloads) render(res.downloads);
+  enableToggle.checked = res.enabled ?? true;  // default to true
   initPort();
+});
+
+// When toggle changes, update storage and notify background
+enableToggle.addEventListener('change', () => {
+  const enabled = enableToggle.checked;
+  chrome.storage.local.set({ enabled });
+  // Notify background script if needed, e.g. via runtime.sendMessage
+  chrome.runtime.sendMessage({ type: 'toggleEnabled', enabled });
 });
