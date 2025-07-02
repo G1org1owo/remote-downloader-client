@@ -1,28 +1,40 @@
 let ws;
 let aliveTimer;
+let popupPort = null;
+let downloads = {};
 
 async function connect() {
   const { wsUrl } = await chrome.storage.local.get('wsUrl');
-  if (!wsUrl) return console.warn('No WS URL set');
-  ws = new WebSocket(wsUrl);
+  if (!wsUrl) {
+    console.warn('No WS URL set');
+    return;
+  }
 
+  ws = new WebSocket(wsUrl);
   ws.onopen = () => {
     console.log('WS connected');
-    aliveTimer = setInterval(() => ws?.send(JSON.stringify({ type: 'ping' })), 20000);
+    aliveTimer = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 20000);
   };
 
-  ws.onmessage = e => {
+  ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
     if (msg.list) {
-      chrome.storage.local.set({ downloads: msg.list });
-      chrome.runtime.sendMessage({ type: 'update' });
+      downloads = {};
+      msg.list.forEach(d => downloads[d.id || d.url] = d);
+      broadcastUpdate(Object.values(downloads));
     }
   };
 
   ws.onclose = () => {
     clearInterval(aliveTimer);
+    popupPort = null;
     setTimeout(connect, 2000);
   };
+  ws.onerror = err => console.error('WS error', err);
 }
 
 chrome.downloads.onCreated.addListener(item => {
@@ -36,12 +48,31 @@ chrome.downloads.onCreated.addListener(item => {
   }
 });
 
-chrome.runtime.onMessage.addListener((msg) => {
+chrome.runtime.onConnect.addListener(port => {
+  if (port.name === 'popup') {
+    popupPort = port;
+    chrome.storage.local.get('downloads', res => {
+      const list = res.downloads || [];
+      port.postMessage({ type: 'update', list });
+    });
+    port.onDisconnect.addListener(() => {
+      popupPort = null;
+    });
+  }
+});
+
+chrome.runtime.onMessage.addListener(msg => {
   if (msg.type === 'reconnect') {
     ws?.close();
     connect();
   }
 });
 
-// Start on load
+function broadcastUpdate(list) {
+  chrome.storage.local.set({ downloads: list });
+  if (popupPort) {
+    popupPort.postMessage({ type: 'update', list });
+  }
+}
+
 connect();
